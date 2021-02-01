@@ -130,15 +130,16 @@ func (api *API) validateIntegration(input *models.PutIntegrationInput) error {
 		return nil
 	}
 	reason, passing, err := api.EvaluateIntegrationFunc(&models.CheckIntegrationInput{
-		AWSAccountID:      input.AWSAccountID,
-		IntegrationType:   input.IntegrationType,
-		IntegrationLabel:  input.IntegrationLabel,
-		EnableCWESetup:    input.CWEEnabled,
-		EnableRemediation: input.RemediationEnabled,
-		S3Bucket:          input.S3Bucket,
-		S3PrefixLogTypes:  input.S3PrefixLogTypes,
-		KmsKey:            input.KmsKey,
-		SqsConfig:         input.SqsConfig,
+		AWSAccountID:         input.AWSAccountID,
+		IntegrationType:      input.IntegrationType,
+		IntegrationLabel:     input.IntegrationLabel,
+		EnableCWESetup:       input.CWEEnabled,
+		EnableRemediation:    input.RemediationEnabled,
+		S3Bucket:             input.S3Bucket,
+		S3PrefixLogTypes:     input.S3PrefixLogTypes,
+		KmsKey:               input.KmsKey,
+		LogProcessingRoleARN: input.LogProcessingRoleARN,
+		SqsConfig:            input.SqsConfig,
 	})
 	if err != nil {
 		return putIntegrationInternalError
@@ -293,7 +294,7 @@ func (api *API) generateNewIntegration(input *models.PutIntegrationInput) *model
 		metadata.KmsKey = input.KmsKey
 		metadata.S3PrefixLogTypes = input.S3PrefixLogTypes
 		metadata.StackName = getStackName(input.IntegrationType, input.IntegrationLabel)
-		metadata.LogProcessingRole = generateLogProcessingRoleArn(input.AWSAccountID, input.IntegrationLabel)
+		metadata.LogProcessingRole = input.LogProcessingRoleArn()
 	case models.IntegrationTypeSqs:
 		metadata.SqsConfig = &models.SqsConfig{
 			S3Bucket:             api.Config.InputDataBucketName,

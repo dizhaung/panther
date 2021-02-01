@@ -185,10 +185,10 @@ func updateIntegrationDBItem(item *ddb.Integration, input *models.UpdateIntegrat
 		item.ResourceTypeIgnoreList = input.ResourceTypeIgnoreList
 		item.ResourceRegexIgnoreList = input.ResourceRegexIgnoreList
 	case models.IntegrationTypeAWS3:
+		//TODO(giorgosp) Do we update the role during source updates?
 		if input.IntegrationLabel != "" {
 			item.IntegrationLabel = input.IntegrationLabel
 			item.StackName = getStackName(models.IntegrationTypeAWS3, input.IntegrationLabel)
-			item.LogProcessingRole = generateLogProcessingRoleArn(item.AWSAccountID, input.IntegrationLabel)
 		}
 		item.S3Bucket = input.S3Bucket
 		item.KmsKey = input.KmsKey

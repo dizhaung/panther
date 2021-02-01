@@ -18,7 +18,11 @@ package models
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import "time"
+import (
+	"fmt"
+	"strings"
+	"time"
+)
 
 // LambdaInput is the collection of all possible args to the Lambda function.
 type LambdaInput struct {
@@ -55,12 +59,21 @@ type CheckIntegrationInput struct {
 	EnableRemediation *bool `json:"enableRemediation"`
 
 	// Checks for log analysis integrations
-	S3Bucket         string           `json:"s3Bucket"`
-	S3PrefixLogTypes S3PrefixLogtypes `json:"s3PrefixLogTypes,omitempty"`
-	KmsKey           string           `json:"kmsKey"`
+	S3Bucket string `json:"s3Bucket"`
+	// TODO(gio this is not needed here
+	S3PrefixLogTypes     S3PrefixLogtypes `json:"s3PrefixLogTypes,omitempty"`
+	KmsKey               string           `json:"kmsKey"`
+	LogProcessingRoleARN string           `json:"roleARN" validate:"omitempty"`
 
-	// Checks for Sqs configuration
 	SqsConfig *SqsConfig `json:"sqsConfig,omitempty"`
+	// Checks for Sqs configuration
+}
+
+func (i *CheckIntegrationInput) LogProcessingRoleArn() string {
+	if i.LogProcessingRoleARN != "" {
+		return i.LogProcessingRoleARN
+	}
+	return generateLogProcessingRoleArn(i.AWSAccountID, i.IntegrationLabel)
 }
 
 //
@@ -70,6 +83,15 @@ type CheckIntegrationInput struct {
 // PutIntegrationInput is used to add one or many integrations.
 type PutIntegrationInput struct {
 	PutIntegrationSettings
+}
+
+// Return the roleARN if the user specified one or generate a role based on the
+// source's label.
+func (i *PutIntegrationInput) LogProcessingRoleArn() string {
+	if i.LogProcessingRoleARN != "" {
+		return i.LogProcessingRoleARN
+	}
+	return generateLogProcessingRoleArn(i.AWSAccountID, i.IntegrationLabel)
 }
 
 // PutIntegrationSettings are all the settings for the new integration.
@@ -88,6 +110,9 @@ type PutIntegrationSettings struct {
 	S3Bucket                string           `json:"s3Bucket"`
 	S3PrefixLogTypes        S3PrefixLogtypes `json:"s3PrefixLogTypes,omitempty" validate:"omitempty,min=1"`
 	KmsKey                  string           `json:"kmsKey" validate:"omitempty,kmsKeyArn"`
+	// The AWS IAM role Panther can use to read objects from the user's S3 bucket.
+	// TODO(gio) add ARN validator
+	LogProcessingRoleARN string `json:"roleARN" validate:"omitempty"`
 
 	SqsConfig *SqsConfig `json:"sqsConfig,omitempty"`
 }
@@ -166,6 +191,10 @@ type GetIntegrationTemplateInput struct {
 	KmsKey                  string   `json:"kmsKey" validate:"omitempty,kmsKeyArn"`
 }
 
+func (i GetIntegrationTemplateInput) NormalizedLabel() interface{} {
+	return NormalizedLabel(i.IntegrationLabel)
+}
+
 //
 // UpdateIntegration: Used by the UI
 //
@@ -193,9 +222,20 @@ type UpdateIntegrationLastScanEndInput struct {
 // 		"integrationId": "uuid",
 //		"lastEventReceived":"2020-10-10T05:03:01Z"
 // 	}
-//}
+// }
 //
 type UpdateStatusInput struct {
 	IntegrationID     string    `json:"integrationId" validate:"required,uuid4"`
 	LastEventReceived time.Time `json:"lastEventReceived" validate:"required"`
+}
+
+// Generates the ARN of the log processing role
+func generateLogProcessingRoleArn(awsAccountID string, label string) string {
+	const logProcessingRoleFormat = "arn:aws:iam::%s:role/PantherLogProcessingRole-%s"
+	return fmt.Sprintf(logProcessingRoleFormat, awsAccountID, NormalizedLabel(label))
+}
+
+func NormalizedLabel(label string) string {
+	sanitized := strings.ReplaceAll(label, " ", "-")
+	return strings.ToLower(sanitized)
 }

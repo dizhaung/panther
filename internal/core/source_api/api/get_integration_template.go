@@ -94,7 +94,7 @@ func (api *API) GetIntegrationTemplate(input *models.GetIntegrationTemplateInput
 	} else {
 		// Log Analysis replacements
 		formattedTemplate = strings.Replace(formattedTemplate, roleSuffixIDFind,
-			fmt.Sprintf(roleSuffixReplace, normalizedLabel(input.IntegrationLabel)), 1)
+			fmt.Sprintf(roleSuffixReplace, input.NormalizedLabel()), 1)
 
 		formattedTemplate = strings.Replace(formattedTemplate, s3BucketFind,
 			fmt.Sprintf(s3BucketReplace, input.S3Bucket), 1)
@@ -154,15 +154,5 @@ func getStackName(integrationType string, label string) string {
 	if integrationType == models.IntegrationTypeAWSScan {
 		return CloudSecStackName
 	}
-	return fmt.Sprintf(LogAnalysisStackNameTemplate, normalizedLabel(label))
-}
-
-// Generates the ARN of the log processing role
-func generateLogProcessingRoleArn(awsAccountID string, label string) string {
-	return fmt.Sprintf(logProcessingRoleFormat, awsAccountID, normalizedLabel(label))
-}
-
-func normalizedLabel(label string) string {
-	sanitized := strings.ReplaceAll(label, " ", "-")
-	return strings.ToLower(sanitized)
+	return fmt.Sprintf(LogAnalysisStackNameTemplate, models.NormalizedLabel(label))
 }

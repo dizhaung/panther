@@ -41,7 +41,7 @@ func integrationToItem(input *models.SourceIntegration) *ddb.Integration {
 		item.S3PrefixLogTypes = input.S3PrefixLogTypes
 		item.KmsKey = input.KmsKey
 		item.StackName = input.StackName
-		item.LogProcessingRole = generateLogProcessingRoleArn(input.AWSAccountID, input.IntegrationLabel)
+		item.LogProcessingRole = input.LogProcessingRole
 	case models.IntegrationTypeAWSScan:
 		item.AWSAccountID = input.AWSAccountID
 		item.CWEEnabled = input.CWEEnabled
@@ -89,6 +89,7 @@ func itemToIntegration(item *ddb.Integration) *models.SourceIntegration {
 		}
 		integration.KmsKey = item.KmsKey
 		integration.StackName = item.StackName
+		//TODO(gio) Generate the role here. SourceIntegration should just have a correct LogProcessingRole field
 		integration.LogProcessingRole = item.LogProcessingRole
 	case models.IntegrationTypeAWSScan:
 		integration.AWSAccountID = item.AWSAccountID

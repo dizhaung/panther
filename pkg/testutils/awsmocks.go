@@ -86,7 +86,7 @@ func (m *S3Mock) GetBucketLocation(input *s3.GetBucketLocationInput) (*s3.GetBuc
 	return args.Get(0).(*s3.GetBucketLocationOutput), args.Error(1)
 }
 
-func (m *S3Mock) ListObjects(i *s3.ListObjectsInput) (*s3.ListObjectsOutput, error){
+func (m *S3Mock) ListObjects(i *s3.ListObjectsInput) (*s3.ListObjectsOutput, error) {
 	args := m.Called(i)
 	return args.Get(0).(*s3.ListObjectsOutput), args.Error(1)
 }

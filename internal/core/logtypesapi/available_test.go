@@ -45,6 +45,16 @@ var _ logtypesapi.SchemaDatabase = (ListAvailableAPI)(nil)
 type ListAvailableAPI []string
 
 // nolint:lll
+func (l ListAvailableAPI) GetSchema(ctx context.Context, id string) (*logtypesapi.SchemaRecord, error) {
+	panic("implement me")
+}
+
+// nolint:lll
+func (l ListAvailableAPI) PutSchema(ctx context.Context, id string, record *logtypesapi.SchemaRecord) (*logtypesapi.SchemaRecord, error) {
+	panic("implement me")
+}
+
+// nolint:lll
 func (l ListAvailableAPI) ScanSchemas(ctx context.Context, scan logtypesapi.ScanSchemaFunc) error {
 	for _, name := range l {
 		r := logtypesapi.SchemaRecord{
@@ -55,34 +65,4 @@ func (l ListAvailableAPI) ScanSchemas(ctx context.Context, scan logtypesapi.Scan
 		}
 	}
 	return nil
-}
-
-// nolint:lll
-func (l ListAvailableAPI) CreateUserSchema(ctx context.Context, id string, upd logtypesapi.SchemaUpdate) (*logtypesapi.SchemaRecord, error) {
-	panic("implement me")
-}
-
-// nolint:lll
-func (l ListAvailableAPI) GetSchema(ctx context.Context, id string, revision int64) (*logtypesapi.SchemaRecord, error) {
-	panic("implement me")
-}
-
-// nolint:lll
-func (l ListAvailableAPI) UpdateUserSchema(ctx context.Context, id string, rev int64, upd logtypesapi.SchemaUpdate) (*logtypesapi.SchemaRecord, error) {
-	panic("implement me")
-}
-
-// nolint:lll
-func (l ListAvailableAPI) UpdateManagedSchema(ctx context.Context, id string, rev int64, release string, upd logtypesapi.SchemaUpdate) (*logtypesapi.SchemaRecord, error) {
-	panic("implement me")
-}
-
-// nolint:lll
-func (l ListAvailableAPI) ToggleSchema(ctx context.Context, id string, enabled bool) error {
-	panic("implement me")
-}
-
-// nolint:lll
-func (l ListAvailableAPI) BatchGetSchemas(ctx context.Context, ids ...string) ([]*logtypesapi.SchemaRecord, error) {
-	panic("implement me")
 }
